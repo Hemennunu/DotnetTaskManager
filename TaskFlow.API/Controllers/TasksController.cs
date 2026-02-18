@@ -63,15 +63,17 @@ namespace TaskFlow.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<ActionResult<TaskDto>> CreateTask(CreateTaskDto createTaskDto)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
                 return Unauthorized();
 
-            // Only admin can create tasks
-            if (!await _userManager.IsInRoleAsync(user, Roles.Admin))
-                return Forbid();
+            // Check if assigned user exists
+            var assignedUser = await _userManager.FindByIdAsync(createTaskDto.AssignedUserId);
+            if (assignedUser == null)
+                return BadRequest("Assigned user not found");
 
             var task = new Task
             {
@@ -89,8 +91,8 @@ namespace TaskFlow.API.Controllers
             return CreatedAtAction(nameof(GetTask), new { id = taskDto.Id }, taskDto);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateTask(int id, UpdateTaskDto updateTaskDto)
+        [HttpPut("{id}/status")]
+        public async Task<IActionResult> UpdateTaskStatus(int id, UpdateTaskDto updateTaskDto)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -101,42 +103,14 @@ namespace TaskFlow.API.Controllers
                 return NotFound();
 
             // Check if user has permission to update this task
-            if (!await CanAccessTask(user, task))
+            if (task.AssignedUserId != user.Id)
                 return Forbid();
 
-            // Users can only update status, admins can update everything
-            if (!await _userManager.IsInRoleAsync(user, Roles.Admin))
-            {
-                task.Status = updateTaskDto.Status;
-            }
-            else
-            {
-                task.Title = updateTaskDto.Title;
-                task.Description = updateTaskDto.Description;
-                task.Status = updateTaskDto.Status;
-                task.Priority = updateTaskDto.Priority;
-            }
+            // Only update status
+            task.Status = updateTaskDto.Status;
+            task.UpdatedAt = DateTime.UtcNow;
 
             await _taskRepository.UpdateTaskAsync(task);
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTask(int id)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-                return Unauthorized();
-
-            var task = await _taskRepository.GetTaskByIdAsync(id);
-            if (task == null)
-                return NotFound();
-
-            // Only admin can delete tasks
-            if (!await _userManager.IsInRoleAsync(user, Roles.Admin))
-                return Forbid();
-
-            await _taskRepository.DeleteTaskAsync(id);
             return NoContent();
         }
 
