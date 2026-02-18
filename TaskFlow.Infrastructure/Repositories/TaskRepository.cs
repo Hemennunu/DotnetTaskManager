@@ -1,6 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using TaskFlow.Application.Interfaces;
 using TaskFlow.Domain.Entities;
+using TaskFlow.Infrastructure.Data;
+using DomainTask = TaskFlow.Domain.Entities.Task;
 
 namespace TaskFlow.Infrastructure.Repositories
 {
@@ -13,7 +19,7 @@ namespace TaskFlow.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<Task>> GetAllTasksAsync()
+        public async Task<IEnumerable<Domain.Entities.Task>> GetAllTasksAsync()
         {
             return await _context.Tasks
                 .Include(t => t.CreatedByUser)
@@ -22,7 +28,7 @@ namespace TaskFlow.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<Task?> GetTaskByIdAsync(int id)
+        public async Task<Domain.Entities.Task?> GetTaskByIdAsync(int id)
         {
             return await _context.Tasks
                 .Include(t => t.CreatedByUser)
@@ -30,7 +36,7 @@ namespace TaskFlow.Infrastructure.Repositories
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
 
-        public async Task<IEnumerable<Task>> GetTasksByUserIdAsync(string userId)
+        public async Task<IEnumerable<Domain.Entities.Task>> GetTasksByUserIdAsync(string userId)
         {
             return await _context.Tasks
                 .Include(t => t.CreatedByUser)
@@ -40,7 +46,7 @@ namespace TaskFlow.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Task>> GetTasksCreatedByUserAsync(string userId)
+        public async Task<IEnumerable<Domain.Entities.Task>> GetTasksCreatedByUserAsync(string userId)
         {
             return await _context.Tasks
                 .Include(t => t.CreatedByUser)
@@ -50,14 +56,14 @@ namespace TaskFlow.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<Task> CreateTaskAsync(Task task)
+        public async Task<Domain.Entities.Task> CreateTaskAsync(Domain.Entities.Task task)
         {
             _context.Tasks.Add(task);
             await _context.SaveChangesAsync();
             return task;
         }
 
-        public async Task<Task> UpdateTaskAsync(Task task)
+        public async Task<Domain.Entities.Task> UpdateTaskAsync(Domain.Entities.Task task)
         {
             task.UpdatedAt = DateTime.UtcNow;
             _context.Tasks.Update(task);

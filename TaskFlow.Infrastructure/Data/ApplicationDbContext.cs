@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using TaskFlow.Domain.Entities;
+using System;
 using TaskFlow.Domain.Constants;
+using TaskFlow.Domain.Entities;
 
 namespace TaskFlow.Infrastructure.Data
 {
@@ -11,7 +13,7 @@ namespace TaskFlow.Infrastructure.Data
         {
         }
 
-        public DbSet<Task> Tasks { get; set; }
+        public DbSet<Domain.Entities.Task> Tasks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -21,19 +23,19 @@ namespace TaskFlow.Infrastructure.Data
             modelBuilder.Entity<IdentityRole>().HasData(
                 new IdentityRole
                 {
-                    Id = "admin-role-id",
-                    Name = Roles.Admin,
-                    NormalizedName = Roles.Admin.ToUpper()
+                    Id = "1",
+                    Name = "Admin",
+                    NormalizedName = "ADMIN"
                 },
                 new IdentityRole
                 {
-                    Id = "user-role-id",
-                    Name = Roles.User,
-                    NormalizedName = Roles.User.ToUpper()
+                    Id = "2",
+                    Name = "User",
+                    NormalizedName = "USER"
                 });
 
             // Configure Task entity
-            modelBuilder.Entity<Task>(entity =>
+            modelBuilder.Entity<Domain.Entities.Task>(entity =>
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
@@ -49,7 +51,7 @@ namespace TaskFlow.Infrastructure.Data
                 entity.HasOne(t => t.AssignedUser)
                     .WithMany(u => u.AssignedTasks)
                     .HasForeignKey(t => t.AssignedUserId)
-                    .OnDelete(DeleteBehavior.SetNull);
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             // Configure ApplicationUser entity

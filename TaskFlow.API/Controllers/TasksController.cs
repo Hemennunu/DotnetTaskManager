@@ -1,10 +1,15 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using TaskFlow.Application.DTOs;
 using TaskFlow.Application.Interfaces;
-using TaskFlow.Domain.Entities;
 using TaskFlow.Domain.Constants;
+using TaskFlow.Domain.Entities;
+using TaskStatus = TaskFlow.Domain.Enums.TaskStatus;
 
 namespace TaskFlow.API.Controllers
 {
@@ -29,8 +34,7 @@ namespace TaskFlow.API.Controllers
             if (user == null)
                 return Unauthorized();
 
-            // Admin can see all tasks, users can only see their assigned tasks
-            IEnumerable<Task> tasks;
+            IEnumerable<Domain.Entities.Task> tasks;
             if (await _userManager.IsInRoleAsync(user, Roles.Admin))
             {
                 tasks = await _taskRepository.GetAllTasksAsync();
@@ -40,8 +44,7 @@ namespace TaskFlow.API.Controllers
                 tasks = await _taskRepository.GetTasksByUserIdAsync(user.Id);
             }
 
-            var taskDtos = tasks.Select(MapToTaskDto);
-            return Ok(taskDtos);
+            return Ok(tasks.Select(t => MapToTaskDto(t)));
         }
 
         [HttpGet("{id}")]
@@ -75,12 +78,12 @@ namespace TaskFlow.API.Controllers
             if (assignedUser == null)
                 return BadRequest("Assigned user not found");
 
-            var task = new Task
+            var task = new Domain.Entities.Task
             {
                 Title = createTaskDto.Title,
                 Description = createTaskDto.Description,
                 Priority = createTaskDto.Priority,
-                Status = Domain.Enums.TaskStatus.Pending,
+                Status = TaskStatus.Pending,
                 AssignedUserId = createTaskDto.AssignedUserId,
                 CreatedByUserId = user.Id
             };
@@ -114,7 +117,7 @@ namespace TaskFlow.API.Controllers
             return NoContent();
         }
 
-        private async Task<bool> CanAccessTask(ApplicationUser user, Task task)
+        private async Task<bool> CanAccessTask(ApplicationUser user, Domain.Entities.Task task)
         {
             // Admin can access all tasks
             if (await _userManager.IsInRoleAsync(user, Roles.Admin))
@@ -124,7 +127,7 @@ namespace TaskFlow.API.Controllers
             return task.AssignedUserId == user.Id;
         }
 
-        private static TaskDto MapToTaskDto(Task task)
+        private static TaskDto MapToTaskDto(Domain.Entities.Task task)
         {
             return new TaskDto
             {
@@ -136,9 +139,9 @@ namespace TaskFlow.API.Controllers
                 CreatedAt = task.CreatedAt,
                 UpdatedAt = task.UpdatedAt,
                 AssignedUserId = task.AssignedUserId,
-                AssignedUserName = task.AssignedUser?.UserName,
+                AssignedUserName = task.AssignedUser?.UserName ?? string.Empty,
                 CreatedByUserId = task.CreatedByUserId,
-                CreatedByUserName = task.CreatedByUser?.UserName
+                CreatedByUserName = task.CreatedByUser?.UserName ?? string.Empty
             };
         }
     }
