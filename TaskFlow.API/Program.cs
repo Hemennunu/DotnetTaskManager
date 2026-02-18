@@ -13,7 +13,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 // Configure JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
@@ -42,12 +43,12 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
-// Configure PostgreSQL connection
+// Configure SQLite connection
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? "Host=localhost;Database=TaskFlowDB;Username=postgres;Password=password";
+    ?? "Data Source=TaskFlow.db";
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseSqlite(connectionString));
 
 // Configure Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -83,9 +84,11 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "TaskFlow API v1");
+    });
 }
 
 app.UseHttpsRedirection();
