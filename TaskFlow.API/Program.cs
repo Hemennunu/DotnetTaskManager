@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql;
 using System.Text;
 using TaskFlow.Application.Interfaces;
 using TaskFlow.Domain.Entities;
@@ -43,12 +44,12 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
-// Configure SQLite connection
+// Configure PostgreSQL connection
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? "Data Source=TaskFlow.db";
+    ?? "Host=localhost;Database=TaskFlow;Username=postgres;Password=your_password";
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(connectionString));
+    options.UseNpgsql(connectionString));
 
 // Configure Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
