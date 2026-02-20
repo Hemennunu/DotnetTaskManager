@@ -34,25 +34,28 @@ public static class DatabaseSeeder
         }
 
         // Check if admin user exists
-        var adminEmail = "admin@taskflow.com";
-        var adminUser = await userManager.FindByEmailAsync(adminEmail);
+        var adminUserName = "admin";
+        var adminUser = await userManager.FindByNameAsync(adminUserName);
         
-        if (adminUser == null)
+        // Delete existing admin user if it exists with different credentials
+        if (adminUser != null)
         {
-            var admin = new ApplicationUser
-            {
-                UserName = adminEmail,
-                Email = adminEmail,
-                FirstName = "Admin",
-                LastName = "User",
-                EmailConfirmed = true
-            };
+            await userManager.DeleteAsync(adminUser);
+        }
+        
+        var admin = new ApplicationUser
+        {
+            UserName = adminUserName,
+            Email = "admin@taskflow.com",
+            FirstName = "System",
+            LastName = "Administrator",
+            EmailConfirmed = true
+        };
 
-            var result = await userManager.CreateAsync(admin, "Admin@123");
-            if (result.Succeeded)
-            {
-                await userManager.AddToRoleAsync(admin, Roles.Admin);
-            }
+        var result = await userManager.CreateAsync(admin, "Admin123!");
+        if (result.Succeeded)
+        {
+            await userManager.AddToRoleAsync(admin, Roles.Admin);
         }
     }
 }

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TaskFlow API - Modern Documentation</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui.css" />
+    <style>
+        html {
+            box-sizing: border-box;
+            overflow: -moz-scrollbars-vertical;
+            overflow-y: scroll;
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+        body {
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+                sans-serif;
+        }
+        .swagger-ui .topbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-bottom: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .swagger-ui .topbar .download-url-wrapper {
+            display: none;
+        }
+        .swagger-ui .info {
+            margin: 50px 0;
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .swagger-ui .info .title {
+            color: #333;
+            font-size: 36px;
+            font-weight: 700;
+        }
+        .swagger-ui .scheme-container {
+            background: white;
+            border-radius: 8px;
+            margin: 0 50px 20px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .swagger-ui .opblock {
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+        }
+        .swagger-ui .opblock.post {
+            border-color: #28a745;
+            background: rgba(40, 167, 69, 0.1);
+        }
+        .swagger-ui .opblock.get {
+            border-color: #007bff;
+            background: rgba(0, 123, 255, 0.1);
+        }
+        .swagger-ui .opblock.put {
+            border-color: #ffc107;
+            background: rgba(255, 193, 7, 0.1);
+        }
+        .swagger-ui .btn.authorize {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            color: white;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-weight: 600;
+        }
+        .swagger-ui .btn.authorize:hover {
+            background: linear-gradient(135deg, #218838 0%, #1ea085 100%);
+        }
+        .swagger-ui .topbar .wrapper {
+            padding: 10px 50px;
+        }
+        .swagger-ui .info .description {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .swagger-ui .opblock .opblock-summary-description {
+            color: #666;
+            font-size: 14px;
+        }
+        .swagger-ui .opblock.opblock-post .opblock-summary {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+        .swagger-ui .opblock.opblock-get .opblock-summary {
+            border-color: #007bff;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+        }
+        .swagger-ui .opblock.opblock-put .opblock-summary {
+            border-color: #ffc107;
+            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+            color: #333;
+        }
+        .custom-footer {
+            text-align: center;
+            padding: 20px;
+            color: white;
+            font-size: 14px;
+        }
+        .custom-footer a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .custom-footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div id="swagger-ui"></div>
+    <div class="custom-footer">
+        <p>TaskFlow API Documentation | Built with ASP.NET Core & PostgreSQL</p>
+        <p><a href="/swagger">Classic Swagger</a> | <a href="javascript:location.reload()">Refresh</a></p>
+    </div>
+    <script src="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-bundle.js"></script>
+    <script src="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-standalone-preset.js"></script>
+    <script>
+        window.onload = function() {
+            const ui = SwaggerUIBundle({
+                url: '/swagger/v1/swagger.json',
+                dom_id: '#swagger-ui',
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIStandalonePreset
+                ],
+                plugins: [
+                    SwaggerUIBundle.plugins.DownloadUrl
+                ],
+                layout: "StandaloneLayout",
+                tryItOutEnabled: true,
+                requestInterceptor: function(request) {
+                    // Add any custom request handling here
+                    return request;
+                },
+                responseInterceptor: function(response) {
+                    // Add any custom response handling here
+                    return response;
+                }
+            });
+        }
+    </script>
+</body>
+</html>

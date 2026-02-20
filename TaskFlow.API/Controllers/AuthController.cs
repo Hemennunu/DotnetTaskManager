@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TaskFlow.Application.Interfaces;
 using TaskFlow.Domain.Entities;
 using TaskFlow.Domain.Constants;
@@ -40,10 +41,28 @@ namespace TaskFlow.API.Controllers
         }
 
         [HttpPost("register")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            // Check if current user is admin (only admin can register new users)
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null || !await _userManager.IsInRoleAsync(currentUser, Roles.Admin))
+            {
+                return Unauthorized("Only administrators can register new users");
+            }
+
+            // Check if user already exists
+            var existingUser = await _userManager.FindByNameAsync(request.UserName);
+            if (existingUser != null)
+                return BadRequest("Username already exists");
+
+            // Check for duplicate emails more safely
+            var existingUsers = await _userManager.Users.Where(u => u.Email == request.Email).ToListAsync();
+            if (existingUsers.Any())
+                return BadRequest("Email already exists");
 
             var user = new ApplicationUser
             {
@@ -63,8 +82,7 @@ namespace TaskFlow.API.Controllers
 
             await _userManager.AddToRoleAsync(user, Roles.User);
 
-            var token = await _authService.GenerateTokenAsync(request.UserName);
-            return Ok(new { Token = token });
+            return Ok(new { Message = "User created successfully", UserId = user.Id });
         }
 
         [HttpPost("seed-admin")]
